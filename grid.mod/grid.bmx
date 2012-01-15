@@ -22,6 +22,13 @@ Type TGrid Extends TCustomEntity
 		_columns = columns
 		_rows = rows
 	End Method
+	
+	Method GetCullRadius#()
+		Local sx#,sy#,sz#
+		GetScale sx,sy,sz,True
+		Local size# = Max(_columns,_rows)*Max(Max(sx,sy),sz)
+		Return Sqr(size*size*3)
+	End Method
 		
 	Function Name$()
 		Return "grid"
