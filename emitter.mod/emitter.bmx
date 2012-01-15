@@ -12,7 +12,6 @@ Function ARGB(alpha,red,green,blue)
 	Return ((alpha&$ff) Shl 24)|((red&$ff) Shl 16)|((green&$ff) Shl 8)|(blue&$ff)
 End Function
 
-
 Public
 
 Type TEmitter Extends TCustomEntity
@@ -21,8 +20,7 @@ Type TEmitter Extends TCustomEntity
 	Field _min_life#, _max_life#
 	Field _min_vx#, _min_vy#, _min_vz#, _max_vx#, _max_vy#, _max_vz#
 	Field _min_s#, _max_s#
-	Field _startred, _startgreen, _startblue
-	Field _endred, _endgreen, _endblue
+	Field _startred, _startgreen, _startblue, _endred, _endgreen, _endblue
 	Field _particles#[], _xyz#[], _life#[], _length#[]
 	Field _resize
 
@@ -34,6 +32,33 @@ Type TEmitter Extends TCustomEntity
 		Return Self
 	End Method
 	
+	Method CopyData:TEntity(entity:TEntity)
+		Local emitter:TEmitter = TEmitter(entity)
+		
+		Local min_life#,max_life#
+		Local min_vx#, min_vy#, min_vz#, max_vx#, max_vy#, max_vz#
+		Local min_s#, max_s#
+		Local startred, startgreen, startblue
+		Local endred, endgreen, endblue
+
+		emitter.GetLife min_life,max_life
+		emitter.GetVelocity min_vx,min_vy,min_vz,max_vx,max_vy,max_vz
+		emitter.GetScaling min_s,max_s
+		emitter.GetGradient startred,startgreen,startblue,endred,endgreen,endblue
+
+		SetRate emitter.GetRate()
+		SetLife min_life,max_life
+		SetVelocity min_vx,min_vy,min_vz,max_vx,max_vy,max_vz
+		SetScaling min_s,max_s
+		SetGradient startred,startgreen,startblue,endred,endgreen,endblue
+
+		Return Super.CopyData(entity)
+	End Method
+	
+	Method GetCount()
+		Return _life.length
+	End Method
+
 	Method GetRate#()
 		Return _rate
 	End Method
@@ -53,12 +78,12 @@ Type TEmitter Extends TCustomEntity
 	End Method
 	
 	Method GetGradient(sr Var,sg Var,sb Var,er Var,eg Var,eb Var)
-		_startred = sr
-		_startgreen = sg
-		_startblue = sb
-		_endred = er
-		_endgreen = eg
-		_endblue = eb
+		sr = _startred
+		sg = _startgreen
+		sb = _startblue
+		er = _endred
+		eg = _endgreen
+		eb = _endblue
 	End Method
 	Method SetGradient(sr,sg,sb,er,eg,eb)
 		_startred = sr
@@ -160,7 +185,7 @@ Type TEmitter Extends TCustomEntity
 	
 	Method GetCullRadius#()
 		Local life# = Max(_max_life, _min_life), dist# = Max(Abs(Max(Max(_max_vx, _max_vy), _max_vz)), Abs(Max(Max(_min_vx, _min_vy),_min_vz)))
-		Return life*Sqr(dist*dist + dist*dist + dist*dist)
+		Return life*Sqr(dist*dist*3)
 	End Method
 	
 	Function Name$()
@@ -173,6 +198,12 @@ Rem
 End Rem
 Function CreateEmitter:TEmitter(parent:TEntity = Null)
 	Return TEmitter(CurrentWorld().AddCustomEntity(New TEmitter, parent))
+End Function
+Rem
+	bbdoc: Needs documentation. #TODO
+End Rem
+Function GetEmitterCount(emitter:TEmitter)
+	Return emitter.GetCount()
 End Function
 Rem
 	bbdoc: Needs documentation. #TODO

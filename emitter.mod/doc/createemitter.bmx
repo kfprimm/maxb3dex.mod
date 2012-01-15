@@ -7,8 +7,6 @@ Import MaxB3DEx.Emitter
 Import MaxB3DEx.GLEmitter
 Import MaxB3DEx.D3D9Emitter
 
-Import MaxB3DEx.Helper
-
 Graphics 800,600
 SeedRnd MilliSecs()
 
@@ -17,7 +15,7 @@ Local light:TLight = CreateLight()
 Local pivot:TPivot = CreatePivot()
 
 Local camera:TCamera = CreateCamera(pivot)
-SetEntityPosition camera,0,10,-10
+SetEntityPosition camera,0,7,-10
 
 Local brush:TBrush = CreateBrush("particle1.png")
 SetBrushBlend brush, BLEND_ADD
@@ -34,7 +32,7 @@ SetEmitterGradient flame,254,0,0,254,254,0
 SetEmitterVelocity flame,-.01,0.1,-.01,.01,.1,.01
 
 Local smoke:TEmitter = CreateEmitter(flame)
-SetEntityPosition smoke,0,1,0
+SetEntityPosition smoke,0,2,0
 SetEntityBrush smoke,brush
 
 SetEmitterRate smoke, 15
@@ -46,10 +44,11 @@ SetEmitterScaling smoke,4,5
 PointEntity camera, flame
 
 While Not KeyDown(KEY_ESCAPE) And Not AppTerminate()
-	FlyCam camera
+	TurnEntity pivot,0,1,0
 	If Not KeyDown(KEY_SPACE) UpdateWorld
 	Local info:TRenderInfo = RenderWorld()
 	DoMax2D
 	DrawText "FPS: "+info.FPS,0,0
+	DrawText "Particles: "+(GetEmitterCount(flame)+GetEmitterCount(smoke)),0,15
 	Flip
 Wend
