@@ -29,6 +29,13 @@ Type TGrid Extends TCustomEntity
 		Local size# = Max(_columns,_rows)*Max(Max(sx,sy),sz)
 		Return Sqr(size*size*3)
 	End Method
+	
+	Method IntersectsLine:TVector(ptA:TVector, ptB:TVector)
+		Local x#,y#,z#,nx# = 1.0,ny# = 0.0,nz# = 0.0
+		GetPosition x,y,z,True
+		_matrix.TransformVec3 nx,ny,nz
+		Return New TPlane.FromPoint(Vec3(0,1,0).Normalize(), Vec3(x,y,z)).LineIntersection(ptA, ptB) 'FIXME: Quick lazy hack.
+	End Method
 		
 	Function Name$()
 		Return "grid"
