@@ -8,8 +8,7 @@ Module MaxB3DEx.Grid
 ModuleInfo "Author: Kevin Primm"
 ModuleInfo "License: MIT"
 
-Import MaxB3D.GLDriver
-Import MaxB3D.D3D9Driver
+Import MaxB3D.Core
 
 Type TGrid Extends TCustomEntity
 	Field _columns, _rows
