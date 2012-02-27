@@ -4,3 +4,4 @@
 *.debug
 .bmx/
 *.mod/doc/commands.html
+*.bmx.bak
