@@ -4,7 +4,7 @@ Strict
 Import MaxB3D.Drivers
 Import MaxB3DEx.Lightmapper
 
-Graphics 800,600
+GLGraphics3D 1920,1080,32
 SetAmbientLight(50, 50, 50)
 
 Local light:TLight = CreateLight()
@@ -30,25 +30,22 @@ SetEntityName cube2, "cube2"
 
 PointEntity camera, cube1
 
-Rem
 Local lightmapper:TLightmapper = New TLightmapper
+lightmapper.SetAmbient 20,20,20
 lightmapper.AddLight -8, 3, -8, 219, 219, 255, 0, True, 3
 lightmapper.AddLight  8, 3,  3, 255, 255, 219, 0, True, 3
 
 lightmapper.AddObscurer cube1
 lightmapper.AddObscurer cube2
 
-Local cube1_lm:TPixmap = lightmapper.Run(cube1, 0.2)
-Local cube2_lm:TPixmap = lightmapper.Run(cube2, 0.2)
+Local cube1_lm:TPixmap = lightmapper.Run(cube1, 0.2, 2)
+Local cube2_lm:TPixmap = lightmapper.Run(cube2, 0.2, 2)
 
-SavePixmapJpeg cube1_lm, "cube1_lm.jpg"
-SavePixmapJpeg cube2_lm, "cube2_lm.jpg"
-End Rem
-cube1.UpdateNormals False
-cube2.UpdateNormals False
+SavePixmapJPeg cube1_lm, "cube1_lm.jpg"
+SavePixmapJPeg cube2_lm, "cube2_lm.jpg"
 
-''SetEntityTexture cube1,LoadTexture(cube1_lm)
-''SetEntityTexture cube2,LoadTexture(cube2_lm)
+SetEntityTexture cube1,LoadTexture(cube1_lm)
+SetEntityTexture cube2,LoadTexture(cube2_lm)
 
 Local oldtime = MilliSecs()
 
@@ -57,7 +54,7 @@ While Not KeyHit(KEY_ESCAPE)
 	Local DeltaTime# = Float(Time - OldTime) / 1000   ' in seconds
 	OldTime% = Time
 	
-	TurnEntity light,0,2,0
+	TurnEntity light,0,20 * DeltaTime,0
 	
 	' Camera movement
 	Local CamSpd# = 10 * DeltaTime
