@@ -4,11 +4,11 @@ Strict
 Import MaxB3D.Drivers
 Import MaxB3DEx.Lightmapper
 
-GLGraphics3D 1920,1080,32
-SetAmbientLight(50, 50, 50)
+GLGraphics3D 800,600
+SetAmbientLight 50, 50, 50
 
 Local light:TLight = CreateLight()
-''SetEntityRotation(light, 45, 30, 0)
+SetEntityRotation(light, 45, 30, 0)
 ''SetLightRange light,3
 
 Local camera:TCamera = CreateCamera()
@@ -19,33 +19,26 @@ Local cube1:TMesh = CreateCube()
 FlipMesh cube1
 PositionMesh cube1, 0, 1.0, 0
 SetEntityScale cube1, 20, 5, 20
-SetEntityPickMode cube1, 2
+SetEntityPickMode cube1, PICKMODE_POLYGON
 SetEntityName cube1, "cube1"
 
 Local cube2:TMesh = CreateCube()
 PositionMesh cube2, 0, 1, 0
 SetEntityScale cube2, 2, 2, 2
-SetEntityPickMode cube2, 2
+SetEntityPickMode cube2, PICKMODE_POLYGON
 SetEntityName cube2, "cube2"
+SetEntityAlpha cube2,.5
+SetEntityColor cube2,255,0,0
 
 PointEntity camera, cube1
 
 Local lightmapper:TLightmapper = New TLightmapper
-lightmapper.SetAmbient 20,20,20
+lightmapper.SetAmbient 40, 40, 40
 lightmapper.AddLight -8, 3, -8, 219, 219, 255, 0, True, 3
 lightmapper.AddLight  8, 3,  3, 255, 255, 219, 0, True, 3
 
 lightmapper.AddObscurer cube1
 lightmapper.AddObscurer cube2
-
-Local cube1_lm:TPixmap = lightmapper.Run(cube1, 0.2, 2)
-Local cube2_lm:TPixmap = lightmapper.Run(cube2, 0.2, 2)
-
-SavePixmapJPeg cube1_lm, "cube1_lm.jpg"
-SavePixmapJPeg cube2_lm, "cube2_lm.jpg"
-
-SetEntityTexture cube1,LoadTexture(cube1_lm)
-SetEntityTexture cube2,LoadTexture(cube2_lm)
 
 Local oldtime = MilliSecs()
 
@@ -53,8 +46,6 @@ While Not KeyHit(KEY_ESCAPE)
 	Local Time = MilliSecs()
 	Local DeltaTime# = Float(Time - OldTime) / 1000   ' in seconds
 	OldTime% = Time
-	
-	TurnEntity light,0,20 * DeltaTime,0
 	
 	' Camera movement
 	Local CamSpd# = 10 * DeltaTime
@@ -71,12 +62,13 @@ While Not KeyHit(KEY_ESCAPE)
 	
 	Local info:TPick, ent:TEntity
 	
-	' Lightmap the picked entity
 	If MouseHit(1)
 		info = WorldPick(camera, [Float(MouseX()), Float(MouseY())])
 		If info ent:TEntity = info.Entity
 		If ent
-		
+			Local pixmap:TPixmap = lightmapper.Run(ent, 0.2, 2)
+			SavePixmapJPeg pixmap, GetEntityName(ent)+"_lm.jpg"
+			SetEntityTexture ent,LoadTexture(pixmap)
 			'SetEntityPickMode(cube1, 0)
 			Rem
 			BeginLightMap(40, 40, 40)
