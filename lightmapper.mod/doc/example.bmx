@@ -22,7 +22,7 @@ SetEntityScale cube1, 20, 5, 20
 SetEntityPickMode cube1, PICKMODE_POLYGON
 SetEntityName cube1, "cube1"
 
-Local cube2:TMesh = CreateCube()
+Local cube2:TMesh = CreateCylinder()
 PositionMesh cube2, 0, 1, 0
 SetEntityScale cube2, 2, 2, 2
 SetEntityPickMode cube2, PICKMODE_POLYGON

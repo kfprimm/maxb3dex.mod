@@ -16,15 +16,10 @@ Function BlurPixmap:TPixmap(pixmap:TPixmap, radius# = 1)
 
 	For Local y = 0 To H-1
 		For Local x = 0 To W-1
-			Local ix1 = Max(x - radius, 0)
-			Local iy1 = Max(y - radius, 0)
-			Local ix2 = Min(x + radius, w-1)
-			Local iy2 = Min(y + radius, h-1)
-			
 			Local r, g, b, num			
 
-			For Local y2 = iy1 To iy2
-				For Local x2 = ix1 To ix2
+			For Local y2 = Max(y - radius, 0) To Min(y + radius, h-1)
+				For Local x2 = Max(x - radius, 0) To Min(x + radius, w-1)
 					Local argb = ReadPixel(pixmap,x2, y2)&$FFFFFF
 					Local ar = (argb Shr 16 & %11111111)
 					Local ag = (argb Shr 8 & %11111111)
@@ -91,12 +86,12 @@ Type TLMFace
 		Local du#,dv#,dw#
 		box.GetSize du,dv,dw
 
-		u0 = (u0-box.mn.x)/du
-		v0 = (v0-box.mn.y)/dv
-		u1 = (u1-box.mn.x)/du
-		v1 = (v1-box.mn.y)/dv
-		u2 = (u2-box.mn.x)/du
-		v2 = (v2-box.mn.y)/dv
+		Self.u0 = (u0-box.mn.x)/du
+		Self.v0 = (v0-box.mn.y)/dv
+		Self.u1 = (u1-box.mn.x)/du
+		Self.v1 = (v1-box.mn.y)/dv
+		Self.u2 = (u2-box.mn.x)/du
+		Self.v2 = (v2-box.mn.y)/dv
 		
 		Return box
 	End Method
@@ -132,6 +127,7 @@ Type TLMFace
 		width = Max(du / lumelsize, 2)
 		height = Max(dv / lumelsize, 2)
 		
+		DebugLog width*height
 		lumels = New TVector[width,height]
 		For Local x = 0 Until width 
 			For Local y = 0 Until height
@@ -158,17 +154,17 @@ Type TLMFace
 
 						If light.casts
 							For Local obscurer:TEntity = EachIn obscurers
-								If obscurer.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,0)
+								If obscurer.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,EPSILON)
 									Local er,eb,eg
-									Local ea# =	1.0-entity.GetAlpha()
-									entity.GetColor er,eb,eg
+									Local ea# =	1.0-obscurer.GetAlpha()
+									obscurer.GetColor er,eb,eg
 									enumr :* (er * ea) / 255.0
 									enumg :* (eg * ea) / 255.0
 									enumb :* (eb * ea) / 255.0
 								EndIf
 							Next
 						
-							Local selfpick:TRawPick = entity.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,0)
+							Local selfpick:TRawPick = entity.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,EPSILON)
 							If selfpick If selfpick.triangle <> index ok = False
 						EndIf
 						
