@@ -91,12 +91,12 @@ Type TLMFace
 		Local du#,dv#,dw#
 		box.GetSize du,dv,dw
 
-		u0 = (u0-box.mn.x)/du
-		v0 = (v0-box.mn.y)/dv
-		u1 = (u1-box.mn.x)/du
-		v1 = (v1-box.mn.y)/dv
-		u2 = (u2-box.mn.x)/du
-		v2 = (v2-box.mn.y)/dv
+		Self.u0 = (u0-box.mn.x)/du
+		Self.v0 = (v0-box.mn.y)/dv
+		Self.u1 = (u1-box.mn.x)/du
+		Self.v1 = (v1-box.mn.y)/dv
+		Self.u2 = (u2-box.mn.x)/du
+		Self.v2 = (v2-box.mn.y)/dv
 		
 		Return box
 	End Method
@@ -160,8 +160,8 @@ Type TLMFace
 							For Local obscurer:TEntity = EachIn obscurers
 								If obscurer.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,0)
 									Local er,eb,eg
-									Local ea# =	1.0-entity.GetAlpha()
-									entity.GetColor er,eb,eg
+									Local ea# =	1.0-obscurer.GetAlpha()
+									obscurer.GetColor er,eb,eg
 									enumr :* (er * ea) / 255.0
 									enumg :* (eg * ea) / 255.0
 									enumb :* (eb * ea) / 255.0
