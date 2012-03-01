@@ -27,7 +27,7 @@ PositionMesh cube2, 0, 1, 0
 SetEntityScale cube2, 2, 2, 2
 SetEntityPickMode cube2, PICKMODE_POLYGON
 SetEntityName cube2, "cube2"
-SetEntityAlpha cube2,.5
+'SetEntityAlpha cube2,.5
 SetEntityColor cube2,255,0,0
 
 PointEntity camera, cube1
