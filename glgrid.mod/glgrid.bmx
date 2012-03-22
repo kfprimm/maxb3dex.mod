@@ -12,7 +12,8 @@ Import MaxB3DEx.Grid
 Import MaxB3D.GLDriver
 
 Function glDrawGrid(rows#,columns#,size#)
-	glBegin GL_LINES			
+	glBegin GL_LINES		
+	glNormal3f 0,0,1	
 	For Local x=0 To rows
 		glVertex2f x*size,0
 		glVertex2f x*size,rows*size
