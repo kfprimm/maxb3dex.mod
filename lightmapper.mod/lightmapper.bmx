@@ -7,41 +7,9 @@ ModuleInfo "License: MIT"
 
 Import MaxB3D.Core
 Import Prime.PixmapPacker
-Import BRL.JpgLoader
+Import Prime.PixmapEx
 
 Private
-Function BlurPixmap:TPixmap(pixmap:TPixmap, radius# = 1)
-	Local out:TPixmap = CopyPixmap(pixmap)		
-	Local w = PixmapWidth(pixmap), h = PixmapHeight(pixmap)
-
-	For Local y = 0 To H-1
-		For Local x = 0 To W-1
-			Local r, g, b, num			
-
-			For Local y2 = Max(y - radius, 0) To Min(y + radius, h-1)
-				For Local x2 = Max(x - radius, 0) To Min(x + radius, w-1)
-					Local argb = ReadPixel(pixmap,x2, y2)&$FFFFFF
-					Local ar = (argb Shr 16 & %11111111)
-					Local ag = (argb Shr 8 & %11111111)
-					Local ab = (argb&%11111111)
-					
-					r = r + ar
-					g = g + ag
-					b = b + ab
-					
-					num = num + 1
-				Next	
-			Next
-			
-			r = r / num
-			g = g / num
-			b = b / num	
-
-			out.WritePixel x,y,((255&$ff) Shl 24)|((Min(255, r)&$ff) Shl 16)|((Min(255, g)&$ff) Shl 8)|(Min(255, b)&$ff)
-		Next
-	Next
-	Return out
-End Function
 
 Type TLMLight
 	Field position:TVector
@@ -143,7 +111,7 @@ Type TLMFace
 			For Local y = 0 Until height
 				Local r,g,b
 				For Local light:TLMLight = EachIn lights
-					If light.position.Dot(plane)<=EPSILON Continue
+					If light.position.Dot(plane.To3()) <= EPSILON Continue
 					Local vec:TVector = light.position.Sub(lumels[x,y])
 					Local distance# = vec.Length()
 					vec.Normalize()
@@ -151,28 +119,29 @@ Type TLMFace
 					If distance < light.range
 						Local ok = True, enumr# = 1.0, enumg# = 1.0, enumb# = 1.0
 						Local intensity# = (light.intensity * angle)/distance
-
-						If light.casts
-							For Local obscurer:TEntity = EachIn obscurers
-								If obscurer.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,EPSILON)
-									Local er,eb,eg
-									Local ea# =	1.0-obscurer.GetAlpha()
-									obscurer.GetColor er,eb,eg
-									enumr :* (er * ea) / 255.0
-									enumg :* (eg * ea) / 255.0
-									enumb :* (eb * ea) / 255.0
-								EndIf
-							Next
+						If intensity > 0.0
+							If light.casts
+								For Local obscurer:TEntity = EachIn obscurers
+									If obscurer.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,EPSILON)
+										Local er,eb,eg
+										Local ea# =	1.0-obscurer.GetAlpha()
+										obscurer.GetColor er,eb,eg
+										enumr :* (er * ea) / 255.0
+										enumg :* (eg * ea) / 255.0
+										enumb :* (eb * ea) / 255.0
+									EndIf
+								Next
 						
-							Local selfpick:TRawPick = entity.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,EPSILON)
-							If selfpick If selfpick.triangle <> index ok = False
-						EndIf
+								Local selfpick:TRawPick = entity.Pick(PICKMODE_POLYGON,light.position.x,light.position.y,light.position.z,lumels[x,y].x,lumels[x,y].y,lumels[x,y].z,EPSILON)
+								If selfpick If selfpick.triangle <> index ok = False
+							EndIf
 						
-						If ok And intensity > 0.0
-							r :+ ((light.r / 255.0) * enumr) * 255.0 * intensity
-							g :+ ((light.g / 255.0) * enumg) * 255.0 * intensity
-							b :+ ((light.b / 255.0) * enumb) * 255.0 * intensity
-						EndIf								
+							If ok
+								r :+ ((light.r / 255.0) * enumr) * 255.0 * intensity
+								g :+ ((light.g / 255.0) * enumg) * 255.0 * intensity
+								b :+ ((light.b / 255.0) * enumb) * 255.0 * intensity
+							EndIf		
+						EndIf						
 					EndIf								
 				Next	
 				pixmap.WritePixel x,y,((255&$ff) Shl 24)|((Min(255, r + ambientr)&$ff) Shl 16)|((Min(255, g + ambientg)&$ff) Shl 8)|(Min(255, b + ambientb)&$ff)
@@ -286,8 +255,6 @@ Type TLightmapper
 	End Method
 	
 	Function OffsetUVs(packer:TPixmapPacker, index, pixmap:TPixmap, u0# Var,v0# Var,u1# Var,v1# Var,u2# Var,v2# Var)
-		Local pwidth# = PixmapWidth(pixmap), pheight# = PixmapHeight(pixmap)
-		
 		Local x,y,width,height			
 		If packer.Get(index,x,y,width,height)	
 			Local tu0# = u0,tu1# = u1,tu2# = u2
@@ -295,8 +262,8 @@ Type TLightmapper
 			u1 = 1.0 - v1;v1 = tu1
 			u2 = 1.0 - v2;v2 = tu2
 		EndIf
-		u0 = (x + u0*width)/pwidth;v0 = (y + v0*height)/pheight
-		u1 = (x + u1*width)/pwidth;v1 = (y + v1*height)/pheight
-		u2 = (x + u2*width)/pwidth;v2 = (y + v2*height)/pheight
+		u0 = (x + u0*width)/PixmapWidth(pixmap);v0 = (y + v0*height)/PixmapHeight(pixmap)
+		u1 = (x + u1*width)/PixmapWidth(pixmap);v1 = (y + v1*height)/PixmapHeight(pixmap)
+		u2 = (x + u2*width)/PixmapWidth(pixmap);v2 = (y + v2*height)/PixmapHeight(pixmap)
 	End Function
 End Type
