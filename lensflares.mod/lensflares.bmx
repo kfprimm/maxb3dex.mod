@@ -43,7 +43,7 @@ Type TLensFlare
 		y = sourcey/GraphicsHeight()
 		
 		'SeeSource = camerapick(cam_entity,SourceX,SourceY)
-		If camera.InView(source) and (x>0 And x<=1) And (y>0 And y<=1)
+		If camera.HasView(source) And (x>0 And x<=1) And (y>0 And y<=1)
 			Local red = 255, green = 255, blue = 255 'GetFlareColor(cam_entity, source, SourceX, SourceY)			
 			Local scale# = 640.0/800.0
 			
@@ -51,7 +51,7 @@ Type TLensFlare
 			SetBlend LIGHTBLEND
 			
 			Local aspect# = GraphicsWidth()/Float(GraphicsHeight())
-			For Local part:TFlarePart = Eachin parts
+			For Local part:TFlarePart = EachIn parts
 				Local flare_x# = sourcex - (((x-0.5)*2.0)*part.distance)
 				Local flare_y# = sourcey - (((y-0.5)*2.0)*(part.distance/aspect))
 
